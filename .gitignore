@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+*.o
+*.d
+nbproject/
+*.pdf
