@@ -35,7 +35,7 @@ extern "C"
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/systick.h>
-
+#include "console.h"
 #include "clock.h"
 #include "sdram.h"
 #include "lcd.h"
@@ -54,8 +54,8 @@ static void gpio_setup(void)
 	rcc_periph_clock_enable(RCC_GPIOG);
 
 	/* Set GPIO13 (in GPIO port G) to 'output push-pull'. */
-	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT,
-			GPIO_PUPD_NONE, GPIO13);
+	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT,GPIO_PUPD_NONE, GPIO13);
+	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT,GPIO_PUPD_NONE, GPIO14);
 }
 
 static void button_setup(void)
@@ -81,6 +81,7 @@ int main(void)
 	/* Enable the LCD attached to the board */
         lcd_init();
 
+	console_setup(115200);
 	printf("System initialized.\n");
         
         

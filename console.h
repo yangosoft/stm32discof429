@@ -37,11 +37,12 @@
 
 
 #define CONSOLE_UART	USART1
+#define USART_CONSOLE  CONSOLE_UART
 
 /*
  * Our simple console definitions
  */
-
+int _write(int file, char *ptr, int len);
 void console_putc(char c);
 char console_getc(int wait);
 void console_puts(char *s);

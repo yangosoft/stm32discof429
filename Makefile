@@ -29,7 +29,7 @@ LDLIBS += -lm
 # LDSCRIPT = ../stm32f429i-discovery.ld
 
 
-OBJS = sdram.o clock.o lcd.o font-7x12.o gfx.o
+OBJS = sdram.o clock.o lcd.o font-7x12.o gfx.o console.o
 #lcd-serial.o lcd-spi.o font-7x12.o gfx.o console.o
 
 OPENCM3_DIR = ../libopencm3

@@ -21,7 +21,9 @@
  * Interrupt drive Console code (extracted from the usart-irq example)
  *
  */
-
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <stdint.h>
 #include <setjmp.h>
 #include <libopencm3/stm32/gpio.h>
@@ -45,6 +47,27 @@
 char recv_buf[RECV_BUF_SIZE];
 volatile int recv_ndx_nxt;		/* Next place to store */
 volatile int recv_ndx_cur;		/* Next place to read */
+
+
+
+
+int _write(int file, char *ptr, int len)
+{
+	int i;
+
+	if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+		for (i = 0; i < len; i++) {
+			if (ptr[i] == '\n') {
+				usart_send_blocking(USART_CONSOLE, '\r');
+			}
+			usart_send_blocking(USART_CONSOLE, ptr[i]);
+		}
+		return i;
+	}
+	errno = EIO;
+	return -1;
+}
+
 
 /* For interrupt handling we add a new function which is called
  * when recieve interrupts happen. The name (usart1_isr) is created
