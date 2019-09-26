@@ -47,6 +47,36 @@ extern "C"
 //{
 //	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 //}
+/* DWT (Data Watchpoint and Trace) registers, only exists on ARM Cortex with a DWT unit */
+  #define KIN1_DWT_CONTROL             (*((volatile uint32_t*)0xE0001000))
+    /*!< DWT Control register */
+  #define KIN1_DWT_CYCCNTENA_BIT       (1UL<<0)
+    /*!< CYCCNTENA bit in DWT_CONTROL register */
+  #define KIN1_DWT_CYCCNT              (*((volatile uint32_t*)0xE0001004))
+    /*!< DWT Cycle Counter register */
+  #define KIN1_DEMCR                   (*((volatile uint32_t*)0xE000EDFC))
+    /*!< DEMCR: Debug Exception and Monitor Control Register */
+  #define KIN1_TRCENA_BIT              (1UL<<24)
+    /*!< Trace enable bit in DEMCR register */
+#define KIN1_InitCycleCounter() \
+  KIN1_DEMCR |= KIN1_TRCENA_BIT
+  /*!< TRCENA: Enable trace and debug block DEMCR (Debug Exception and Monitor Control Register */
+ 
+#define KIN1_ResetCycleCounter() \
+  KIN1_DWT_CYCCNT = 0
+  /*!< Reset cycle counter */
+ 
+#define KIN1_EnableCycleCounter() \
+  KIN1_DWT_CONTROL |= KIN1_DWT_CYCCNTENA_BIT
+  /*!< Enable cycle counter */
+ 
+#define KIN1_DisableCycleCounter() \
+  KIN1_DWT_CONTROL &= ~KIN1_DWT_CYCCNTENA_BIT
+  /*!< Disable cycle counter */
+ 
+#define KIN1_GetCycleCounter() \
+  KIN1_DWT_CYCCNT
+
 
 static void gpio_setup(void)
 {
@@ -101,12 +131,15 @@ int main(void)
 	gfx_setCursor(15, 60);
 	gfx_puts(R"(stuff on the LCD screen.)");
 	lcd_show_frame();
-        
-        
-        
+	KIN1_InitCycleCounter(); /* enable DWT hardware */
+	KIN1_ResetCycleCounter(); /* reset cycle counter */
 	/* Blink the LED (PD13) on the board. */
 	while (1) {
+		KIN1_EnableCycleCounter(); /* start counting */
 		gpio_toggle(GPIOG, GPIO13);
+		uint32_t cycles = KIN1_GetCycleCounter(); /* get cycle counter */
+		KIN1_DisableCycleCounter(); /* disable counting if not used any more */
+
 
 		/* Upon button press, blink more slowly. */
 		if (gpio_get(GPIOA, GPIO0)) {
